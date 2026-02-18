@@ -7,22 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 
 body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-overflow:hidden;
+height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;
 background:linear-gradient(-45deg,#1e3c72,#2a5298,#6a11cb,#2575fc);
-background-size:400% 400%;
-animation:gradientBG 12s ease infinite;
+background-size:400% 400%;animation:gradientBG 12s ease infinite;
 }
 
 @keyframes gradientBG{
@@ -32,103 +22,51 @@ animation:gradientBG 12s ease infinite;
 }
 
 .card{
-width:95%;
-max-width:700px;
-padding:40px;
-border-radius:25px;
+width:95%;max-width:700px;padding:40px;border-radius:25px;
 background:rgba(255,255,255,0.1);
 backdrop-filter:blur(20px);
 border:1px solid rgba(255,255,255,0.3);
 box-shadow:0 0 40px rgba(0,0,0,0.4);
-color:white;
-text-align:center;
-animation:fadeIn 0.8s ease;
+color:white;text-align:center;
 }
 
-h1{
-font-size:28px;
-margin-bottom:20px;
-letter-spacing:1px;
-}
+h1{font-size:28px;margin-bottom:20px;}
 
 input{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-margin-bottom:15px;
-font-size:16px;
-outline:none;
+width:100%;padding:14px;border:none;border-radius:12px;
+margin-bottom:15px;font-size:16px;outline:none;
 }
 
 button{
-width:100%;
-padding:14px;
-margin:8px 0;
-border:none;
-border-radius:12px;
-font-weight:600;
-cursor:pointer;
-background:rgba(255,255,255,0.2);
-color:white;
-transition:0.3s;
+width:100%;padding:14px;margin:8px 0;border:none;
+border-radius:12px;font-weight:600;cursor:pointer;
+background:rgba(255,255,255,0.2);color:white;transition:0.3s;
 }
 
 button:hover{
-background:#00f2fe;
-color:#000;
-box-shadow:0 0 15px #00f2fe;
-transform:scale(1.05);
+background:#00f2fe;color:#000;
+box-shadow:0 0 15px #00f2fe;transform:scale(1.05);
 }
 
-.info{
-display:flex;
-justify-content:space-between;
-margin-bottom:15px;
-font-weight:600;
-}
+.info{display:flex;justify-content:space-between;margin-bottom:15px;font-weight:600;}
 
-.timer-bar{
-height:8px;
-background:rgba(255,255,255,0.2);
-border-radius:10px;
-overflow:hidden;
-margin-bottom:20px;
-}
+.timer-bar{height:8px;background:rgba(255,255,255,0.2);
+border-radius:10px;overflow:hidden;margin-bottom:20px;}
 
-.timer-progress{
-height:100%;
-width:100%;
-background:#00f2fe;
-transition:1s linear;
-}
+.timer-progress{height:100%;width:100%;background:#00f2fe;transition:1s linear;}
 
-.question{
-margin-bottom:20px;
-font-size:18px;
-min-height:50px;
-}
+.question{margin-bottom:20px;font-size:18px;min-height:50px;}
 
 .correct{background:#2ecc71!important;color:white;}
 .wrong{background:#e74c3c!important;color:white;}
-
 .hidden{display:none;}
 
 .ranking{
-margin-top:20px;
-text-align:left;
-max-height:150px;
-overflow-y:auto;
+margin-top:20px;text-align:left;max-height:150px;overflow-y:auto;
 }
 
 .ranking div{
-padding:6px 0;
-border-bottom:1px solid rgba(255,255,255,0.2);
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
+padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.2);
 }
 </style>
 </head>
@@ -160,16 +98,34 @@ to{opacity:1;transform:translateY(0);}
 
 <div id="result" class="hidden">
 <h2 id="finalText"></h2>
-
 <h3>🏆 Ranking Global</h3>
 <div class="ranking" id="ranking"></div>
-
-
 </div>
 
 </div>
 
-<script>
+<!-- FIREBASE -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { 
+  getFirestore, collection, addDoc, getDocs, 
+  query, orderBy, limit 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AQUI_TU_API_KEY",
+  authDomain: "AQUI_TU_AUTH_DOMAIN",
+  projectId: "AQUI_TU_PROJECT_ID",
+  storageBucket: "AQUI_TU_STORAGE_BUCKET",
+  messagingSenderId: "AQUI_TU_SENDER_ID",
+  appId: "AQUI_TU_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ================== JUEGO ==================
 
 const questions=[
 {q:"Decir siempre la verdad es...",a:[["Honestidad",1],["Solidaridad",0],["Paz",0]]},
@@ -181,7 +137,7 @@ const questions=[
 
 let current=0,score=0,timeLeft=15,timer,player="";
 
-function startGame(){
+window.startGame=function(){
 player=document.getElementById("playerName").value.trim();
 if(player===""){alert("Ingresa tu nombre");return;}
 document.getElementById("startScreen").classList.add("hidden");
@@ -244,23 +200,40 @@ saveScore();
 showRanking();
 }
 
-function saveScore(){
-let ranking=JSON.parse(localStorage.getItem("ranking"))||[];
-ranking.push({name:player,score:score});
-ranking.sort((a,b)=>b.score-a.score);
-ranking=ranking.slice(0,10);
-localStorage.setItem("ranking",JSON.stringify(ranking));
+// ================== FIREBASE ==================
+
+async function saveScore(){
+try{
+await addDoc(collection(db,"ranking"),{
+name:player,
+score:score,
+created:new Date()
+});
+}catch(e){
+console.error("Error guardando:",e);
+}
 }
 
-function showRanking(){
-let ranking=JSON.parse(localStorage.getItem("ranking"))||[];
+async function showRanking(){
 const container=document.getElementById("ranking");
+container.innerHTML="Cargando...";
+
+const q=query(
+collection(db,"ranking"),
+orderBy("score","desc"),
+limit(10)
+);
+
+const querySnapshot=await getDocs(q);
+
 container.innerHTML="";
-ranking.forEach((r,i)=>{
-container.innerHTML+=`<div>${i+1}. ${r.name} - ${r.score} pts</div>`;
+let i=1;
+querySnapshot.forEach((doc)=>{
+const data=doc.data();
+container.innerHTML+=`<div>${i}. ${data.name} - ${data.score} pts</div>`;
+i++;
 });
 }
-
 
 </script>
 
