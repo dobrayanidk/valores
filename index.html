@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reto de Valores Universales</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+background:linear-gradient(-45deg,#1e3c72,#2a5298,#6a11cb,#2575fc);
+background-size:400% 400%;
+animation:gradientBG 12s ease infinite;
+}
+
+@keyframes gradientBG{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+.card{
+width:95%;
+max-width:700px;
+padding:40px;
+border-radius:25px;
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.3);
+box-shadow:0 0 40px rgba(0,0,0,0.4);
+color:white;
+text-align:center;
+animation:fadeIn 0.8s ease;
+}
+
+h1{
+font-size:28px;
+margin-bottom:20px;
+letter-spacing:1px;
+}
+
+input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+margin-bottom:15px;
+font-size:16px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:14px;
+margin:8px 0;
+border:none;
+border-radius:12px;
+font-weight:600;
+cursor:pointer;
+background:rgba(255,255,255,0.2);
+color:white;
+transition:0.3s;
+}
+
+button:hover{
+background:#00f2fe;
+color:#000;
+box-shadow:0 0 15px #00f2fe;
+transform:scale(1.05);
+}
+
+.info{
+display:flex;
+justify-content:space-between;
+margin-bottom:15px;
+font-weight:600;
+}
+
+.timer-bar{
+height:8px;
+background:rgba(255,255,255,0.2);
+border-radius:10px;
+overflow:hidden;
+margin-bottom:20px;
+}
+
+.timer-progress{
+height:100%;
+width:100%;
+background:#00f2fe;
+transition:1s linear;
+}
+
+.question{
+margin-bottom:20px;
+font-size:18px;
+min-height:50px;
+}
+
+.correct{background:#2ecc71!important;color:white;}
+.wrong{background:#e74c3c!important;color:white;}
+
+.hidden{display:none;}
+
+.ranking{
+margin-top:20px;
+text-align:left;
+max-height:150px;
+overflow-y:auto;
+}
+
+.ranking div{
+padding:6px 0;
+border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🌟 Reto de Valores Universales</h1>
+
+<div id="startScreen">
+<input type="text" id="playerName" placeholder="Ingresa tu nombre">
+<button onclick="startGame()">Comenzar Desafío</button>
+</div>
+
+<div id="game" class="hidden">
+<div class="info">
+<div>Puntos: <span id="score">0</span></div>
+<div>Tiempo: <span id="time">15</span>s</div>
+</div>
+
+<div class="timer-bar">
+<div class="timer-progress" id="progress"></div>
+</div>
+
+<div class="question" id="question"></div>
+<div id="answers"></div>
+</div>
+
+<div id="result" class="hidden">
+<h2 id="finalText"></h2>
+
+<h3>🏆 Ranking Global</h3>
+<div class="ranking" id="ranking"></div>
+
+
+</div>
+
+</div>
+
+<script>
+
+const questions=[
+{q:"Decir siempre la verdad es...",a:[["Honestidad",1],["Solidaridad",0],["Paz",0]]},
+{q:"Ayudar sin esperar recompensa es...",a:[["Solidaridad",1],["Justicia",0],["Responsabilidad",0]]},
+{q:"Aceptar ideas diferentes demuestra...",a:[["Tolerancia",1],["Honestidad",0],["Amor",0]]},
+{q:"Cumplir compromisos refleja...",a:[["Responsabilidad",1],["Paz",0],["Respeto",0]]},
+{q:"Tratar a todos con dignidad es...",a:[["Respeto",1],["Solidaridad",0],["Justicia",0]]}
+];
+
+let current=0,score=0,timeLeft=15,timer,player="";
+
+function startGame(){
+player=document.getElementById("playerName").value.trim();
+if(player===""){alert("Ingresa tu nombre");return;}
+document.getElementById("startScreen").classList.add("hidden");
+document.getElementById("game").classList.remove("hidden");
+loadQuestion();
+}
+
+function loadQuestion(){
+const q=questions[current];
+document.getElementById("question").textContent=q.q;
+const ans=document.getElementById("answers");
+ans.innerHTML="";
+q.a.forEach(opt=>{
+let btn=document.createElement("button");
+btn.textContent=opt[0];
+btn.onclick=()=>select(btn,opt[1]);
+ans.appendChild(btn);
+});
+startTimer();
+}
+
+function startTimer(){
+timeLeft=15;
+document.getElementById("time").textContent=timeLeft;
+document.getElementById("progress").style.width="100%";
+timer=setInterval(()=>{
+timeLeft--;
+document.getElementById("time").textContent=timeLeft;
+document.getElementById("progress").style.width=(timeLeft/15)*100+"%";
+if(timeLeft<=0){
+clearInterval(timer);
+score-=5;
+next();
+}
+},1000);
+}
+
+function select(btn,correct){
+clearInterval(timer);
+if(correct){score+=10;btn.classList.add("correct");}
+else{score-=5;btn.classList.add("wrong");}
+document.getElementById("score").textContent=score;
+setTimeout(next,600);
+}
+
+function next(){
+current++;
+if(current<questions.length)loadQuestion();
+else endGame();
+}
+
+function endGame(){
+document.getElementById("game").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
+
+document.getElementById("finalText").textContent=
+"🔥 "+player+" obtuvo "+score+" puntos";
+
+saveScore();
+showRanking();
+}
+
+function saveScore(){
+let ranking=JSON.parse(localStorage.getItem("ranking"))||[];
+ranking.push({name:player,score:score});
+ranking.sort((a,b)=>b.score-a.score);
+ranking=ranking.slice(0,10);
+localStorage.setItem("ranking",JSON.stringify(ranking));
+}
+
+function showRanking(){
+let ranking=JSON.parse(localStorage.getItem("ranking"))||[];
+const container=document.getElementById("ranking");
+container.innerHTML="";
+ranking.forEach((r,i)=>{
+container.innerHTML+=`<div>${i+1}. ${r.name} - ${r.score} pts</div>`;
+});
+}
+
+
+</script>
+
+</body>
+</html>
